@@ -240,7 +240,7 @@ export class PayoutService {
         return this.toSellerPayoutResponse(payout);
     }
 
-    async getSellerPayouts(sellerId: number, status?: string): Promise<SellerPayoutResponse[]> {
+    async getSellerPayouts(sellerId: number, status?: string, storeId?: number): Promise<SellerPayoutResponse[]> {
         const sellerProfile = await this.sellerProfileRepository.findOne({
             where: { user_id: sellerId }
         });
@@ -256,6 +256,10 @@ export class PayoutService {
 
         if (status) {
             queryBuilder.andWhere("payout.status = :status", { status });
+        }
+
+        if (storeId) {
+            queryBuilder.andWhere("payout.store_id = :storeId", { storeId });
         }
 
         const payouts = await queryBuilder

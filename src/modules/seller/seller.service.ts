@@ -62,7 +62,7 @@ export class SellerService {
         return this.toSellerProfileData(profile);
     }
 
-    async getSellerDashboard(userId: number): Promise<{ profile: SellerProfileData; stats: SellerStats }> {
+    async getSellerDashboard(userId: number, storeId?: number): Promise<{ profile: SellerProfileData; stats: SellerStats }> {
         const profile = await this.sellerProfileRepository.findOne({
             where: { user_id: userId }
         });
@@ -71,13 +71,23 @@ export class SellerService {
             throw new NotFoundError("Seller profile not found");
         }
 
-        // Get all stores for this seller
-        const stores = await this.storeRepository.find({
+        // Get stores for this seller (filter by storeId if provided)
+        let stores = await this.storeRepository.find({
             where: { seller_id: profile.id }
         });
+
+        // If specific store requested, verify it belongs to seller and filter
+        if (storeId) {
+            const store = stores.find(s => s.id === storeId);
+            if (!store) {
+                throw new NotFoundError("Store not found or doesn't belong to you");
+            }
+            stores = [store];
+        }
+
         const storeIds = stores.map(s => s.id);
 
-        // Calculate stats
+        // Calculate stats for filtered stores
         const totalProducts = storeIds.length > 0
             ? await this.productRepository.count({ where: storeIds.map(id => ({ store_id: id })) })
             : 0;
@@ -92,11 +102,78 @@ export class SellerService {
             .andWhere("order.status IN (:...statuses)", { statuses: ["pending", "paid"] })
             .getCount();
 
+        const shippedOrders = await ordersQuery
+            .clone()
+            .andWhere("order.status = :status", { status: "shipped" })
+            .getCount();
+
+        const deliveredOrders = await ordersQuery
+            .clone()
+            .andWhere("order.status = :status", { status: "delivered" })
+            .getCount();
+
+        const cancelledOrders = await ordersQuery
+            .clone()
+            .andWhere("order.status = :status", { status: "cancelled" })
+            .getCount();
+
         const revenueResult = await ordersQuery
             .clone()
             .andWhere("order.status = :status", { status: "delivered" })
             .select("SUM(order.total_amount)", "total")
             .getRawOne();
+
+        // Get month revenue (current month)
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const monthRevenueResult = await ordersQuery
+            .clone()
+            .andWhere("order.status = :status", { status: "delivered" })
+            .andWhere("order.created_at >= :startOfMonth", { startOfMonth })
+            .select("SUM(order.total_amount)", "total")
+            .getRawOne();
+
+        // Low stock products (quantity <= 5)
+        const lowStockProducts = storeIds.length > 0
+            ? await this.productRepository
+                .createQueryBuilder("product")
+                .where("product.store_id IN (:...storeIds)", { storeIds })
+                .andWhere("product.quantity <= :threshold AND product.quantity > 0", { threshold: 5 })
+                .getCount()
+            : 0;
+
+        // Out of stock products
+        const outOfStockProducts = storeIds.length > 0
+            ? await this.productRepository
+                .createQueryBuilder("product")
+                .where("product.store_id IN (:...storeIds)", { storeIds })
+                .andWhere("product.quantity = 0")
+                .getCount()
+            : 0;
+
+        // Recent orders (last 5)
+        const recentOrders = storeIds.length > 0
+            ? await this.orderRepository
+                .createQueryBuilder("order")
+                .leftJoinAndSelect("order.user", "user")
+                .where("order.store_id IN (:...storeIds)", { storeIds })
+                .orderBy("order.created_at", "DESC")
+                .take(5)
+                .getMany()
+            : [];
+
+        // Top products (by order count or quantity sold)
+        const topProducts = storeIds.length > 0
+            ? await this.productRepository
+                .createQueryBuilder("product")
+                .leftJoinAndSelect("product.images", "images")
+                .where("product.store_id IN (:...storeIds)", { storeIds })
+                .orderBy("product.quantity", "DESC")
+                .take(5)
+                .getMany()
+            : [];
 
         const pendingPayouts = await this.payoutRepository.count({
             where: { seller_id: profile.id, status: "pending" }
@@ -109,8 +186,28 @@ export class SellerService {
                 total_products: totalProducts,
                 total_orders: totalOrders,
                 pending_orders: pendingOrders,
+                shipped_orders: shippedOrders,
+                delivered_orders: deliveredOrders,
+                cancelled_orders: cancelledOrders,
                 total_revenue: parseFloat(revenueResult?.total || "0"),
-                pending_payouts: pendingPayouts
+                month_revenue: parseFloat(monthRevenueResult?.total || "0"),
+                pending_payouts: pendingPayouts,
+                low_stock_products: lowStockProducts,
+                out_of_stock_products: outOfStockProducts,
+                recent_orders: recentOrders.map(o => ({
+                    id: o.id,
+                    customer_name: o.user?.name || "Unknown",
+                    status: o.status,
+                    total_amount: o.total_amount,
+                    created_at: o.created_at
+                })),
+                top_products: topProducts.map(p => ({
+                    id: p.id,
+                    title: p.title,
+                    price: p.price,
+                    quantity: p.quantity,
+                    image_url: p.images?.[0]?.image_url || null
+                }))
             }
         };
     }

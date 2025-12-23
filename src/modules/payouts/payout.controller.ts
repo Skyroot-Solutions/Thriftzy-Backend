@@ -65,13 +65,16 @@ export class PayoutController {
     /**
      * GET /payouts
      * Get seller's payout requests
+     * @query status - Filter by payout status
+     * @query store_id - Optional, filter by store
      */
     async getSellerPayouts(req: Request, res: Response): Promise<void> {
         try {
             const userId = req.userId!;
             const status = req.query.status as string | undefined;
+            const storeId = req.query.store_id ? parseInt(req.query.store_id as string, 10) : undefined;
 
-            const payouts = await payoutService.getSellerPayouts(userId, status);
+            const payouts = await payoutService.getSellerPayouts(userId, status, storeId);
 
             res.status(200).json({
                 success: true,

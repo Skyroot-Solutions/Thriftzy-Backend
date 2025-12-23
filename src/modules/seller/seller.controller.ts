@@ -19,11 +19,13 @@ export class SellerController {
     /**
      * GET /seller/dashboard
      * Get seller dashboard with stats
+     * @query store_id - Optional, filter stats for specific store
      */
     async getDashboard(req: Request, res: Response): Promise<void> {
         try {
             const userId = req.userId!;
-            const dashboard = await sellerService.getSellerDashboard(userId);
+            const storeId = req.query.store_id ? parseInt(req.query.store_id as string, 10) : undefined;
+            const dashboard = await sellerService.getSellerDashboard(userId, storeId);
 
             res.status(200).json({
                 success: true,

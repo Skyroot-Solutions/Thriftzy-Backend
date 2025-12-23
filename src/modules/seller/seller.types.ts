@@ -66,8 +66,32 @@ export interface SellerStats {
     total_products: number;
     total_orders: number;
     pending_orders: number;
+    shipped_orders: number;
+    delivered_orders: number;
+    cancelled_orders: number;
     total_revenue: number;
+    month_revenue: number;
     pending_payouts: number;
+    low_stock_products: number;
+    out_of_stock_products: number;
+    recent_orders: RecentOrderSummary[];
+    top_products: TopProductSummary[];
+}
+
+export interface RecentOrderSummary {
+    id: number;
+    customer_name: string;
+    status: string;
+    total_amount: number;
+    created_at: Date;
+}
+
+export interface TopProductSummary {
+    id: number;
+    title: string;
+    price: number;
+    quantity: number;
+    image_url: string | null;
 }
 
 export interface StoreResponse {
