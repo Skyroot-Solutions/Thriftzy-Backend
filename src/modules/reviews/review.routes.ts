@@ -10,7 +10,6 @@ const router = Router();
  * @route   GET /reviews/products/:productId
  * @desc    Get reviews for a product
  * @access  Public
- * @query   page, limit, sort_by (newest|oldest|highest|lowest)
  */
 router.get("/products/:productId", (req: Request, res: Response) =>
     reviewController.getProductReviews(req, res)
@@ -20,7 +19,6 @@ router.get("/products/:productId", (req: Request, res: Response) =>
  * @route   GET /reviews/stores/:storeId
  * @desc    Get reviews for a store
  * @access  Public
- * @query   page, limit, sort_by (newest|oldest|highest|lowest)
  */
 router.get("/stores/:storeId", (req: Request, res: Response) =>
     reviewController.getStoreReviews(req, res)
@@ -68,7 +66,7 @@ router.get("/me", authenticate, (req: Request, res: Response) =>
  * @route   POST /reviews/products
  * @desc    Create a product review
  * @access  Private
- * @body    { product_id, rating, title, description }
+ * @body    { product_id, rating, description, images? }
  */
 router.post("/products", authenticate, (req: Request, res: Response) =>
     reviewController.createProductReview(req, res)
@@ -78,17 +76,27 @@ router.post("/products", authenticate, (req: Request, res: Response) =>
  * @route   POST /reviews/stores
  * @desc    Create a store review
  * @access  Private
- * @body    { store_id, rating, title, description }
+ * @body    { store_id, rating, description, images? }
  */
 router.post("/stores", authenticate, (req: Request, res: Response) =>
     reviewController.createStoreReview(req, res)
 );
 
 /**
+ * @route   POST /reviews/:id/reply
+ * @desc    Seller adds a reply to a review (only one reply allowed)
+ * @access  Private (Seller only - must own the product/store)
+ * @body    { reply }
+ */
+router.post("/:id/reply", authenticate, (req: Request, res: Response) =>
+    reviewController.addReply(req, res)
+);
+
+/**
  * @route   PATCH /reviews/:id
  * @desc    Update a review
  * @access  Private (owner only)
- * @body    { rating?, title?, description? }
+ * @body    { rating?, description?, images? }
  */
 router.patch("/:id", authenticate, (req: Request, res: Response) =>
     reviewController.updateReview(req, res)
@@ -101,6 +109,15 @@ router.patch("/:id", authenticate, (req: Request, res: Response) =>
  */
 router.delete("/:id", authenticate, (req: Request, res: Response) =>
     reviewController.deleteReview(req, res)
+);
+
+/**
+ * @route   DELETE /reviews/:id/reply
+ * @desc    Seller deletes their reply
+ * @access  Private (seller who created the reply only)
+ */
+router.delete("/:id/reply", authenticate, (req: Request, res: Response) =>
+    reviewController.deleteReply(req, res)
 );
 
 export { router as reviewRoutes };

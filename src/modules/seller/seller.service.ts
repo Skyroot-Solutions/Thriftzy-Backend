@@ -298,6 +298,18 @@ export class SellerService {
         if (data.is_active !== undefined) {
             store.is_active = data.is_active;
         }
+        // Address fields
+        if (data.address_line1 !== undefined) store.address_line1 = data.address_line1;
+        if (data.address_line2 !== undefined) store.address_line2 = data.address_line2;
+        if (data.city !== undefined) store.city = data.city;
+        if (data.state !== undefined) store.state = data.state;
+        if (data.country !== undefined) store.country = data.country;
+        if (data.pincode !== undefined) store.pincode = data.pincode;
+        if (data.address_phone !== undefined) store.address_phone = data.address_phone;
+        // Policy fields
+        if (data.shipping_policy !== undefined) store.shipping_policy = data.shipping_policy;
+        if (data.return_policy !== undefined) store.return_policy = data.return_policy;
+        if (data.support_contact !== undefined) store.support_contact = data.support_contact;
 
         await this.storeRepository.save(store);
 
@@ -701,6 +713,18 @@ export class SellerService {
             is_active: store.is_active,
             is_verified: store.is_verified,
             products_count: store.products?.length,
+            // Address
+            address_line1: store.address_line1,
+            address_line2: store.address_line2,
+            city: store.city,
+            state: store.state,
+            country: store.country,
+            pincode: store.pincode,
+            address_phone: store.address_phone,
+            // Policies
+            shipping_policy: store.shipping_policy,
+            return_policy: store.return_policy,
+            support_contact: store.support_contact,
             created_at: store.created_at
         };
     }

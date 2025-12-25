@@ -15,7 +15,7 @@ const router = Router();
  * @access  Public
  * @body    { name, email, phone, password, role? }
  */
-router.post("/register", authRateLimit, (req: Request, res: Response) => authController.register(req, res));
+router.post("/register", (req: Request, res: Response) => authController.register(req, res));
 
 /**
  * @route   POST /auth/login
@@ -23,7 +23,7 @@ router.post("/register", authRateLimit, (req: Request, res: Response) => authCon
  * @access  Public
  * @body    { emailOrPhone, password }
  */
-router.post("/login", authRateLimit, (req: Request, res: Response) => authController.login(req, res));
+router.post("/login",  (req: Request, res: Response) => authController.login(req, res));
 
 /**
  * @route   POST /auth/google

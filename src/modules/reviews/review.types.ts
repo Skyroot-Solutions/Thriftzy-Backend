@@ -3,21 +3,25 @@
 export interface CreateProductReviewRequest {
     product_id: number;
     rating: number; // 1-5
-    title: string;
     description: string;
+    images?: string[]; // Optional array of image URLs
 }
 
 export interface CreateStoreReviewRequest {
     store_id: number;
     rating: number; // 1-5
-    title: string;
     description: string;
+    images?: string[];
 }
 
 export interface UpdateReviewRequest {
     rating?: number;
-    title?: string;
     description?: string;
+    images?: string[];
+}
+
+export interface SellerReplyRequest {
+    reply: string;
 }
 
 // ============== Response DTOs ==============
@@ -28,8 +32,8 @@ export interface ReviewResponse {
     product_id: number | null;
     store_id: number | null;
     rating: number;
-    title: string;
     description: string;
+    images: string[];
     user: {
         id: number;
         name: string;
@@ -38,6 +42,8 @@ export interface ReviewResponse {
         id: number;
         name: string;
     };
+    seller_reply: string | null;
+    seller_reply_at: Date | null;
     created_at: Date;
     updated_at: Date;
 }

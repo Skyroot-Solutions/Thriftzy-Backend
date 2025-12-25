@@ -49,6 +49,38 @@ export class Store {
     @Column({ default: false })
     is_verified: boolean;
 
+    // Store Address
+    @Column({ nullable: true })
+    address_line1: string;
+
+    @Column({ nullable: true })
+    address_line2: string;
+
+    @Column({ nullable: true })
+    city: string;
+
+    @Column({ nullable: true })
+    state: string;
+
+    @Column({ nullable: true })
+    country: string;
+
+    @Column({ nullable: true })
+    pincode: string;
+
+    @Column({ nullable: true })
+    address_phone: string;
+
+    // Store Policies
+    @Column({ type: "text", nullable: true })
+    shipping_policy: string;
+
+    @Column({ type: "text", nullable: true })
+    return_policy: string;
+
+    @Column({ nullable: true })
+    support_contact: string;
+
     @CreateDateColumn()
     created_at: Date;
 

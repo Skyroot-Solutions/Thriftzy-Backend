@@ -14,31 +14,39 @@ import { Store } from "../stores/store.entity";
 @Entity("reviews")
 export class Review {
     @PrimaryGeneratedColumn("increment")
-    id: number
+    id: number;
 
     @Column({ nullable: true })
-    product_id: number
+    product_id: number;
 
     @Column()
-    user_id: number
+    user_id: number;
 
     @Column({ nullable: true })
-    store_id: number
+    store_id: number;
 
     @Column()
-    rating: number
+    rating: number;
 
-    @Column({ length: 120 })
-    title: string
+    @Column({ length: 1000, nullable: true, default: "" })
+    description: string;
 
-    @Column({ length: 500 })
-    description: string
+    // Optional images - stored as JSON array of URLs
+    @Column({ type: "simple-array", nullable: true })
+    images: string[];
+
+    // Seller's single reply to this review
+    @Column({ length: 500, nullable: true })
+    seller_reply: string;
+
+    @Column({ nullable: true })
+    seller_reply_at: Date;
 
     @CreateDateColumn()
-    created_at: Date
+    created_at: Date;
 
     @UpdateDateColumn()
-    updated_at: Date
+    updated_at: Date;
 
     @ManyToOne(() => Product, (product) => product.reviews)
     @JoinColumn({ name: "product_id" })

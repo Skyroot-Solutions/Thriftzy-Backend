@@ -12,6 +12,18 @@ export interface UpdateStoreRequest {
     description?: string;
     logo_url?: string;
     is_active?: boolean;
+    // Address fields
+    address_line1?: string;
+    address_line2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    pincode?: string;
+    address_phone?: string;
+    // Policy fields
+    shipping_policy?: string;
+    return_policy?: string;
+    support_contact?: string;
 }
 
 export interface CreateProductRequest {
@@ -105,6 +117,18 @@ export interface StoreResponse {
     is_active: boolean;
     is_verified: boolean;
     products_count?: number;
+    // Address
+    address_line1?: string;
+    address_line2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    pincode?: string;
+    address_phone?: string;
+    // Policies
+    shipping_policy?: string;
+    return_policy?: string;
+    support_contact?: string;
     created_at: Date;
 }
 
