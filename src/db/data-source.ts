@@ -66,6 +66,12 @@ export const AppDataSource = new DataSource({
     migrations: [process.env.NODE_ENV === "production" ? "dist/migrations/*.js" : "src/migrations/*.ts"],
     subscribers: [process.env.NODE_ENV === "production" ? "dist/subscribers/*.js" : "src/subscribers/*.ts"],
     synchronize: process.env.TYPEORM_SYNCHRONIZE ? process.env.TYPEORM_SYNCHRONIZE === "true" : true,
-    logging: process.env.TYPEORM_LOGGING === "true" ? true : false
+    logging: process.env.TYPEORM_LOGGING === "true" ? true : false,
+    ssl: process.env.POSTGRES_SSL === "true" ? { rejectUnauthorized: false } : false,
+    extra: {
+        max: 20, // Connection pool size
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+    }
 });
 
