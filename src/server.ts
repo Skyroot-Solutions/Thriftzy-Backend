@@ -6,6 +6,7 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 
 import { AppDataSource } from "./db/data-source";
 import app from "./app";
+import { initializeFirebaseAdmin } from "./modules/auth/firebase-admin.service";
 
 const PORT = parseInt(process.env.PORT || "8000", 10);
 
@@ -13,6 +14,9 @@ const PORT = parseInt(process.env.PORT || "8000", 10);
     try {
         await AppDataSource.initialize();
         console.log("Database connected");
+
+        // Initialize Firebase Admin
+        initializeFirebaseAdmin();
 
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);

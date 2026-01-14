@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { OAuth2Client } from "google-auth-library";
 import { Repository } from "typeorm";
 import { User } from "../users/user.entity";
 import { RefreshToken } from "./refreshToken.entity";
@@ -27,7 +26,6 @@ export class AuthService {
     private userRepository: Repository<User>;
     private refreshTokenRepository: Repository<RefreshToken>;
     private sellerProfileRepository: Repository<SellerProfile>;
-    private googleClient: OAuth2Client;
 
     private readonly JWT_SECRET: string;
     private readonly JWT_REFRESH_SECRET: string;
@@ -39,8 +37,6 @@ export class AuthService {
         this.userRepository = AppDataSource.getRepository(User);
         this.refreshTokenRepository = AppDataSource.getRepository(RefreshToken);
         this.sellerProfileRepository = AppDataSource.getRepository(SellerProfile);
-
-        this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
         this.JWT_SECRET = process.env.JWT_SECRET || "your-super-secret-jwt-key";
         this.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "your-super-secret-refresh-key";
@@ -412,25 +408,23 @@ export class AuthService {
 
     private async verifyGoogleToken(idToken: string): Promise<GoogleUserInfo | null> {
         try {
-            const ticket = await this.googleClient.verifyIdToken({
-                idToken,
-                audience: process.env.GOOGLE_CLIENT_ID
-            });
-            const payload = ticket.getPayload();
+            // Use Firebase Admin to verify the token
+            const { verifyFirebaseToken } = await import("./firebase-admin.service");
+            const decodedToken = await verifyFirebaseToken(idToken);
 
-            if (!payload) return null;
+            if (!decodedToken) return null;
 
             return {
-                sub: payload.sub,
-                email: payload.email!,
-                email_verified: payload.email_verified || false,
-                name: payload.name || "",
-                given_name: payload.given_name,
-                family_name: payload.family_name,
-                picture: payload.picture
+                sub: decodedToken.uid,
+                email: decodedToken.email || "",
+                email_verified: decodedToken.email_verified || false,
+                name: decodedToken.name || "",
+                given_name: decodedToken.name?.split(" ")[0],
+                family_name: decodedToken.name?.split(" ").slice(1).join(" "),
+                picture: decodedToken.picture
             };
         } catch (error) {
-            console.error("Google token verification failed:", error);
+            console.error("Firebase token verification failed:", error);
             return null;
         }
     }
