@@ -22,6 +22,11 @@ const PORT = parseInt(process.env.PORT || "8000", 10);
             console.log(`Server running on port ${PORT}`);
         });
     } catch (error) {
+        console.log(process.env.POSTGRES_PORT)
+        console.log(process.env.POSTGRES_USER)
+        console.log(process.env.POSTGRES_PASSWORD)
+        console.log(process.env.POSTGRES_DB)
+        console.log(process.env.POSTGRES_HOST)
         console.error("Failed to start server:", error);
         process.exit(1);
     }

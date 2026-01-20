@@ -38,6 +38,7 @@ export class StoreService {
         const queryBuilder = this.storeRepository
             .createQueryBuilder("store")
             .leftJoinAndSelect("store.products", "products")
+            .leftJoinAndSelect("products.images", "images")
             .where("store.is_active = :isActive", { isActive: true });
 
         // Search by name or description
@@ -255,7 +256,11 @@ export class StoreService {
             rating_count: store.rating_count,
             is_verified: store.is_verified,
             products_count: store.products?.filter(p => p.quantity > 0).length || 0,
-            created_at: store.created_at
+            created_at: store.created_at,
+            products: (store.products || [])
+                .filter(p => p.quantity > 0)
+                .slice(0, 2)
+                .map(p => this.toStoreProductCard(p))
         };
     }
 

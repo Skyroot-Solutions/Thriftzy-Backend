@@ -26,7 +26,10 @@ import { Admin } from "../modules/admin/admin.entity";
 import { AdminWallet } from "../modules/admin/adminWallet.entity";
 import { CommissionSettings } from "../modules/admin/commissionSettings.entity";
 // Support entities
+// Support entities
 import { SupportTicket } from "../modules/support/supportTicket.entity";
+import { Wishlist } from "../modules/wishlist/wishlist.entity";
+import { FeaturedStoreRequest } from "../modules/featuredStores/featuredStoreRequest.entity";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -61,7 +64,10 @@ export const AppDataSource = new DataSource({
         AdminWallet,
         CommissionSettings,
         // Support entities
-        SupportTicket
+        SupportTicket,
+        Wishlist,
+        // Featured Store
+        FeaturedStoreRequest
     ],
     migrations: [process.env.NODE_ENV === "production" ? "dist/migrations/*.js" : "src/migrations/*.ts"],
     subscribers: [process.env.NODE_ENV === "production" ? "dist/subscribers/*.js" : "src/subscribers/*.ts"],

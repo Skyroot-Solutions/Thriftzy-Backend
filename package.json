@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "ts-node-dev src/server.ts"
   },
   "repository": {
     "type": "git",
@@ -22,13 +22,16 @@
   },
   "homepage": "https://github.com/ragultv/Thriftzy-Backend#readme",
   "dependencies": {
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^5.2.1",
     "firebase-admin": "^13.6.0",
+    "form-data": "^4.0.5",
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
     "typedi": "^0.10.0",
@@ -38,6 +41,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.10.1",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",

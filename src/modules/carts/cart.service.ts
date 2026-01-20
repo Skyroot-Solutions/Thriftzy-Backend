@@ -327,7 +327,9 @@ export class CartService {
                 store: {
                     id: product?.store?.id || 0,
                     name: product?.store?.name || "Unknown Store",
-                    slug: product?.store?.slug || ""
+                    slug: product?.store?.slug || "",
+                    return_policy: product?.store?.return_policy || null,
+                    shipping_policy: product?.store?.shipping_policy || null
                 }
             },
             item_total: (product?.price || 0) * item.quantity,
