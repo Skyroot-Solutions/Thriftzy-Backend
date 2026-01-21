@@ -12,6 +12,7 @@ import { Cart } from "../carts/cart.entity";
 import { Order } from "../orders/order.entity";
 import { Review } from "../reviews/review.entity";
 import { Address } from "../addresses/addresses.entity";
+import { Wishlist } from "../wishlist/wishlist.entity";
 /*
     This is the user entity and it has relationship with seller profile entity
 */
@@ -57,4 +58,6 @@ export class User {
     @OneToMany(() => Review, (review) => review.user)
     reviews: Review[];
 
+    @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
+    wishlist: Wishlist[];
 }

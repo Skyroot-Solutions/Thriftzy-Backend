@@ -21,6 +21,7 @@ export interface StoreCard {
     is_verified: boolean;
     products_count: number;
     created_at: Date;
+    products?: StoreProductCard[];
 }
 
 export interface StoreDetail {

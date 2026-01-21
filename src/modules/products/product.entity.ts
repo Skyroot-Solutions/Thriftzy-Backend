@@ -14,6 +14,7 @@ import { ProductAttribute } from "./product.attribute";
 import { CartItem } from "../carts/cartItems.entity";
 import { OrderItem } from "../orders/orderItem.entity";
 import { Review } from "../reviews/review.entity";
+import { Wishlist } from "../wishlist/wishlist.entity";
 
 /*
    This is the product entity and it has relationship with store 
@@ -72,4 +73,7 @@ export class Product {
 
     @OneToMany(() => Review, (review) => review.product)
     reviews: Review[];
+
+    @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
+    wishlist: Wishlist[];
 }

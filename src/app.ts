@@ -17,6 +17,11 @@ import { sellerDocumentsRoutes } from "./modules/sellerDocuments/sellerDocuments
 import { adminRoutes } from "./modules/admin";
 import { payoutRoutes } from "./modules/payouts";
 import { supportRoutes } from "./modules/support";
+import wishlistRoutes from "./modules/wishlist/wishlist.routes";
+import { uploadRoutes } from "./modules/upload";
+import { sellerFeaturedRoutes } from "./modules/featuredStores/featuredStore.sellerRoutes";
+import { adminFeaturedRoutes } from "./modules/featuredStores/featuredStore.adminRoutes";
+import { publicFeaturedRoutes } from "./modules/featuredStores/featuredStore.publicRoutes";
 
 const app = express();
 
@@ -38,8 +43,14 @@ app.use("/users", userRoutes);
 // Seller routes - /seller/* (includes /seller/documents/*)
 app.use("/seller", sellerRoutes);
 
+// Seller featured requests - /seller/featured-requests/*
+app.use("/seller/featured-requests", sellerFeaturedRoutes);
+
 // Product routes - /products/* (public buyer browsing)
 app.use("/products", productRoutes);
+
+// Featured store route - /stores/featured (public) - MUST come before /stores
+app.use("/stores/featured", publicFeaturedRoutes);
 
 // Store routes - /stores/* (public buyer browsing)
 app.use("/stores", storeRoutes);
@@ -65,11 +76,20 @@ app.use("/seller/kyc", sellerDocumentsRoutes);
 // Admin routes - /admin/* (admin authentication and management)
 app.use("/admin", adminRoutes);
 
+// Admin featured requests - /admin/featured-requests/*
+app.use("/admin/featured-requests", adminFeaturedRoutes);
+
 // Payout routes - /payouts/* (seller payouts)
 app.use("/payouts", payoutRoutes);
 
 // Support routes - /support/* (customer support tickets)
 app.use("/support", supportRoutes);
+
+// Wishlist routes - /wishlist/* (authenticated users)
+app.use("/wishlist", wishlistRoutes);
+
+// Upload routes - /upload/* (authenticated users)
+app.use("/upload", uploadRoutes);
 
 // ============== HEALTH CHECK ==============
 

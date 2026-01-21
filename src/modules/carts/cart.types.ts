@@ -39,6 +39,8 @@ export interface CartProductInfo {
         id: number;
         name: string;
         slug: string;
+        return_policy: string | null;
+        shipping_policy: string | null;
     };
 }
 
