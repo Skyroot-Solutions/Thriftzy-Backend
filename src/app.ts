@@ -30,6 +30,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Error handler for JSON parsing
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err instanceof SyntaxError && 'body' in err) {
+        return res.status(400).json({ error: 'Invalid JSON' });
+    }
+    next(err);
+});
+
 app.use(requestLogger);
 
 // ============== ROUTES ==============

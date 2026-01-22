@@ -521,7 +521,11 @@ export class SellerService {
             throw new NotFoundError("Product not found");
         }
 
-        await this.productRepository.remove(product);
+        // Delete all related entities first to avoid FK constraint violations
+        const attributeRepository = AppDataSource.getRepository(ProductAttribute);
+        await attributeRepository.delete({ product_id: product.id });
+        await this.productImageRepository.delete({ product_id: product.id });
+        await this.productRepository.delete({ id: product.id });
     }
 
     // ============== ORDER MANAGEMENT ==============

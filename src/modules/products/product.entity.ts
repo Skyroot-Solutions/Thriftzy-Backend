@@ -59,10 +59,10 @@ export class Product {
     @JoinColumn({ name: "store_id" })
     store: Store;
 
-    @OneToMany(() => ProductImage, (productImage) => productImage.product)
+    @OneToMany(() => ProductImage, (productImage) => productImage.product, { cascade: true, onDelete: 'CASCADE' })
     images: ProductImage[];
 
-    @OneToMany(() => ProductAttribute, (productAttribute) => productAttribute.product)
+    @OneToMany(() => ProductAttribute, (productAttribute) => productAttribute.product, { cascade: true, onDelete: 'CASCADE' })
     attributes: ProductAttribute[];
 
     @OneToMany(() => CartItem, (cartItem) => cartItem.product)
