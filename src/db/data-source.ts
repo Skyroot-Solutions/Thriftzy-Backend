@@ -73,11 +73,16 @@ export const AppDataSource = new DataSource({
     subscribers: [process.env.NODE_ENV === "production" ? "dist/subscribers/*.js" : "src/subscribers/*.ts"],
     synchronize: process.env.TYPEORM_SYNCHRONIZE ? process.env.TYPEORM_SYNCHRONIZE === "true" : true,
     logging: process.env.TYPEORM_LOGGING === "true" ? true : false,
-    ssl: { rejectUnauthorized: false },
+    ssl: process.env.POSTGRES_HOST && process.env.POSTGRES_HOST.includes("supabase") 
+        ? { rejectUnauthorized: false } 
+        : false,
     extra: {
         max: 20, // Connection pool size
         idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
+        connectionTimeoutMillis: 30000, // Increased from 10000 to 30000 for Supabase
+        // Enable keep-alive to maintain connection
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 10000,
     }
 });
 
