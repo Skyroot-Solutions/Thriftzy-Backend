@@ -117,6 +117,52 @@ export class AdminController {
     }
 
     /**
+     * GET /admin/sellers
+     * Get all sellers with their id, user name and store names
+     * Access: Admin only
+     */
+    async getSellers(req: Request, res: Response): Promise<void> {
+        try {
+            const sellers = await adminService.getAllSellersWithStores();
+
+            res.status(200).json({
+                success: true,
+                data: sellers
+            });
+        } catch (error) {
+            this.handleError(res, error);
+        }
+    }
+
+    /**
+     * GET /admin/sellers/:id
+     * Get a single seller by ID with enriched data
+     * Access: Admin only
+     */
+    async getSellerById(req: Request, res: Response): Promise<void> {
+        try {
+            const sellerId = parseInt(req.params.id, 10);
+
+            if (isNaN(sellerId)) {
+                res.status(400).json({
+                    success: false,
+                    message: "Invalid seller ID"
+                });
+                return;
+            }
+
+            const seller = await adminService.getSellerById(sellerId);
+
+            res.status(200).json({
+                success: true,
+                data: seller
+            });
+        } catch (error) {
+            this.handleError(res, error);
+        }
+    }
+
+    /**
      * GET /admin/stores/:id
      * Get a single store by ID with seller details
      */

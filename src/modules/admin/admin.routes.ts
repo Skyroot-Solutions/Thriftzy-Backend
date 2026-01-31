@@ -71,6 +71,24 @@ router.get("/stores/:id", (req: Request, res: Response) =>
 );
 
 /**
+ * @route   GET /admin/sellers
+ * @desc    Get all sellers with their stores
+ * @access  Admin only
+ */
+router.get("/sellers", (req: Request, res: Response) =>
+    adminController.getSellers(req, res)
+);
+
+/**
+ * @route   GET /admin/sellers/:id
+ * @desc    Get a single seller by ID with enriched data
+ * @access  Admin only
+ */
+router.get("/sellers/:id", (req: Request, res: Response) =>
+    adminController.getSellerById(req, res)
+);
+
+/**
  * @route   PATCH /admin/stores/:id/status
  * @desc    Update store verification status (approve/reject)
  * @access  Admin only

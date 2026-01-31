@@ -10,6 +10,7 @@ import { Store } from "../stores/store.entity";
 import { Order } from "../orders/order.entity";
 import { Payout } from "../payouts/payout.entity";
 import { SellerProfile } from "../seller/sellerProfile.entity";
+import { Product } from "../products/product.entity";
 import { User } from "../users/user.entity";
 import { SellerBankKyc } from "../sellerDocuments/sellerBank.entity";
 import { SupportTicket } from "../support/supportTicket.entity";
@@ -300,6 +301,131 @@ export class AdminService {
         });
 
         return { stores, total, page, limit };
+    }
+
+    /**
+     * Get enriched sellers list for admin
+     * Returns: [{ id, user_id, name, kyc_verified, subscription_plan, stores: [{ id, name }], total_products, total_revenue }]
+     */
+    async getAllSellersWithStores(): Promise<Array<{
+        id: number;
+        user_id: number;
+        name: string | null;
+        kyc_verified: boolean;
+        subscription_plan: string;
+        stores: Array<{ id: number; name: string }>;
+        total_products: number;
+        total_revenue: number;
+        email: string | null;
+    }>> {
+        const profiles = await this.sellerProfileRepository.find({
+            relations: ["user", "stores"]
+        });
+
+        const productRepo = AppDataSource.getRepository(Product);
+        const results: Array<{
+            id: number;
+            user_id: number;
+            name: string | null;
+            kyc_verified: boolean;
+            subscription_plan: string;
+            stores: Array<{ id: number; name: string }>;
+            total_products: number;
+            total_revenue: number;
+            email: string | null;
+        }> = [];
+
+        for (const profile of profiles) {
+            const stores = profile.stores || [];
+            const storeIds = stores.map(s => s.id);
+
+            const totalProducts = storeIds.length > 0
+                ? await productRepo.count({ where: storeIds.map(id => ({ store_id: id })) })
+                : 0;
+
+            let totalRevenue = 0;
+            if (storeIds.length > 0) {
+                const revenueResult = await this.orderRepository
+                    .createQueryBuilder("order")
+                    .where("order.store_id IN (:...storeIds)", { storeIds })
+                    .andWhere("order.status IN (:...statuses)", { statuses: ["paid", "shipped", "delivered"] })
+                    .select("COALESCE(SUM(order.total_amount), 0)", "total")
+                    .getRawOne();
+
+                totalRevenue = parseFloat(revenueResult?.total || "0");
+            }
+
+            results.push({
+                id: profile.id,
+                user_id: profile.user_id,
+                name: profile.user?.name || null,
+                kyc_verified: !!profile.kyc_verified,
+                subscription_plan: "basic",
+                stores: stores.map(s => ({ id: s.id, name: s.name })),
+                total_products: totalProducts,
+                total_revenue: totalRevenue
+                ,email: profile.user?.email || null
+            });
+        }
+
+        return results;
+    }
+
+    /**
+     * Get a single seller by ID with enriched data
+     * Returns: { id, user_id, name, email, kyc_verified, subscription_plan, stores: [{ id, name }], total_products, total_revenue }
+     */
+    async getSellerById(sellerId: number): Promise<{
+        id: number;
+        user_id: number;
+        name: string | null;
+        email: string | null;
+        kyc_verified: boolean;
+        subscription_plan: string;
+        stores: Array<{ id: number; name: string }>;
+        total_products: number;
+        total_revenue: number;
+    }> {
+        const profile = await this.sellerProfileRepository.findOne({
+            where: { id: sellerId },
+            relations: ["user", "stores"]
+        });
+
+        if (!profile) {
+            throw new NotFoundError("Seller not found");
+        }
+
+        const stores = profile.stores || [];
+        const storeIds = stores.map(s => s.id);
+
+        const productRepo = AppDataSource.getRepository(Product);
+        const totalProducts = storeIds.length > 0
+            ? await productRepo.count({ where: storeIds.map(id => ({ store_id: id })) })
+            : 0;
+
+        let totalRevenue = 0;
+        if (storeIds.length > 0) {
+            const revenueResult = await this.orderRepository
+                .createQueryBuilder("order")
+                .where("order.store_id IN (:...storeIds)", { storeIds })
+                .andWhere("order.status IN (:...statuses)", { statuses: ["paid", "shipped", "delivered"] })
+                .select("COALESCE(SUM(order.total_amount), 0)", "total")
+                .getRawOne();
+
+            totalRevenue = parseFloat(revenueResult?.total || "0");
+        }
+
+        return {
+            id: profile.id,
+            user_id: profile.user_id,
+            name: profile.user?.name || null,
+            email: profile.user?.email || null,
+            kyc_verified: !!profile.kyc_verified,
+            subscription_plan: "basic",
+            stores: stores.map(s => ({ id: s.id, name: s.name })),
+            total_products: totalProducts,
+            total_revenue: totalRevenue
+        };
     }
 
     async getStoreById(storeId: number): Promise<StoreWithSellerResponse> {
